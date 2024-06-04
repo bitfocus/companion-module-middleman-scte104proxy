@@ -1,0 +1,30 @@
+{
+	"id": "middleman-scte104proxy",
+	"name": "middleman-scte104proxy",
+	"shortname": "scte104proxy",
+	"description": "Controls Middleman Software's SCTE 104 Proxy.",
+	"version": "0.0.0",
+	"license": "MIT",
+	"repository": "git+https://github.com/bitfocus/companion-module-middleman-scte104proxy.git",
+	"bugs": "https://github.com/bitfocus/companion-module-middleman-scte104proxy/issues",
+	"maintainers": [
+		{
+			"name": "James Heliker",
+			"email": "james.heliker@middleman.tv"
+		},
+		{
+			"name": "Joseph Adams",
+			"email": "josephdadams@gmail.com"
+		}
+	],
+	"legacyIds": [],
+	"runtime": {
+		"type": "node18",
+		"api": "nodejs-ipc",
+		"apiVersion": "0.0.0",
+		"entrypoint": "../index.js"
+	},
+	"manufacturer": "Middleman Software",
+	"products": ["SCTE104 Proxy"],
+	"keywords": ["SCTE-104", "SCTE", "104", "SCTE104 Proxy", "Middleman Software"]
+}
