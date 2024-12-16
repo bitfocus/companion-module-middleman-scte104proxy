@@ -4,21 +4,21 @@ This module controls Middleman Software's BreakTime. For more information, visit
 
 ## Configuration Options:
 
--   IP/Port of Server
--   Enable/Disable Verbose Mode (for logging)
+- IP/Port of Server
+- Enable/Disable Verbose Mode (for logging)
 
 ## Actions:
 
--   N/A
+- N/A
 
 ## Feedbacks:
 
--   Input is Active
+- Input is Active
 
 ## Variables:
 
--   Current Active Input
--   Input is Active
--   Input Priority
--   Input Client Connected
--   Input Client IP/Port
+- Current Active Input
+- Input is Active
+- Input Priority
+- Input Client Connected
+- Input Client IP/Port
