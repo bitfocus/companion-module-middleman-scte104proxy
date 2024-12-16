@@ -30,7 +30,7 @@ module.exports = {
 
 			self.WS.on('close', () => {
 				self.log('info', 'Websocket Closed.')
-				self.updateStatus(InstanceStatus.Warning)
+				self.updateStatus(InstanceStatus.ConnectionFailure)
 			})
 
 			self.getData()
@@ -150,6 +150,8 @@ module.exports = {
 			return data
 		} catch (error) {
 			self.log('error', `REST Send Error: ${error}`)
+			clearInterval(self.POLLING_INTERVAL)
+			self.updateStatus(InstanceStatus.ConnectionFailure)
 		}
 	},
 
