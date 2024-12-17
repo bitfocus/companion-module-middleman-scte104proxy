@@ -154,7 +154,9 @@ module.exports = {
 
 			let response = await fetch(url, options)
 			let data = await response.json()
-
+			
+			self.updateStatus(InstanceStatus.Ok) //clear any previous connection errors
+			
 			return data
 		} catch (error) {
 			self.log('error', `REST Send Error: ${error}`)
