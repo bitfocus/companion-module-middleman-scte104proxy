@@ -16,7 +16,11 @@ module.exports = {
 
 			self.WS.on('error', (error) => {
 				self.log('error', 'Websocket Error: ' + error.toString())
-				self.updateStatus(InstanceStatus.ConnectionFailure)
+				self.updateStatus(InstanceStatus.ConnectionFailure, `Websocket Error: ${String(error)}`)
+				self.log('debug', 'Reconnecting in 10 seconds.')
+				setTimeout(() => {
+					self.initConnection()
+				}, 10000)
 			})
 
 			self.WS.on('open', () => {
@@ -30,7 +34,11 @@ module.exports = {
 
 			self.WS.on('close', () => {
 				self.log('info', 'Websocket Closed.')
-				self.updateStatus(InstanceStatus.ConnectionFailure)
+				self.updateStatus(InstanceStatus.ConnectionFailure, 'Websocket Closed.')
+				self.log('debug', 'Reconnecting in 10 seconds.')
+				setTimeout(() => {
+					self.initConnection()
+				}, 10000)
 			})
 
 			self.getData()
@@ -150,7 +158,7 @@ module.exports = {
 			return data
 		} catch (error) {
 			self.log('error', `REST Send Error: ${error}`)
-			self.updateStatus(InstanceStatus.ConnectionFailure)
+			self.updateStatus(InstanceStatus.ConnectionFailure, `REST Send Error: ${String(error)}`)
 		}
 	},
 
