@@ -18,7 +18,8 @@ module.exports = {
 				self.log('error', `Websocket Error [${error.code}]: ${error.message}`)
 				self.updateStatus(InstanceStatus.ConnectionFailure, `Websocket Error [${error.code}]: ${error.message}`)
 				self.log('debug', 'Reconnecting in 10 seconds.')
-				setTimeout(() => {
+				
+				self.RECONNECT_INTERVAL = setTimeout(() => {
 					self.initConnection()
 				}, 10000)
 			})
@@ -26,37 +27,51 @@ module.exports = {
 			self.WS.on('open', () => {
 				self.log('info', 'Websocket Connected.')
 				self.updateStatus(InstanceStatus.Ok)
+
+				clearInterval(self.RECONNECT_INTERVAL) //clear the reconnect interval if it exists
+
+				self.getData() //gets data from REST API
+
+				//clear polling interval if it exists
+				if (self.POLLING_INTERVAL) {
+					clearInterval(self.POLLING_INTERVAL)
+				}
+
+				if (self.config.enablePolling) {
+					self.POLLING_INTERVAL = setInterval(() => {
+						self.getData()
+					}, self.config.pollingInterval)
+				}
 			})
 
 			self.WS.on('message', (data) => {
 				self.processWSData(data)
 			})
 
-			self.WS.on('close', () => {
+			self.WS.on('close', (code, reason) => {
+				if (code == undefined) {
+					code = 'Unknown'
+				}
+				if (reason == undefined) {
+					reason = 'Unknown'
+				}
+
 				self.log('info', `Websocket Closed. Code: ${code}, Reason: ${reason || 'No reason provided.'}`)
 				self.updateStatus(InstanceStatus.ConnectionFailure, `Websocket Closed. Code: ${code}`)
 
 				self.WS = null // Ensure WS is set to null when closed
 				delete self.WS
 
+				//clear polling interval if it exists
+				if (self.POLLING_INTERVAL) {
+					clearInterval(self.POLLING_INTERVAL)
+				}
+
 				self.log('debug', 'Reconnecting in 10 seconds.')
-				setTimeout(() => {
+				self.RECONNECT_INTERVAL = setTimeout(() => {
 					self.initConnection()
 				}, 10000)
-			})
-
-			self.getData() //gets data from REST API
-
-			//clear polling interval if it exists
-			if (self.POLLING_INTERVAL) {
-				clearInterval(self.POLLING_INTERVAL)
-			}
-
-			if (self.config.enablePolling) {
-				self.POLLING_INTERVAL = setInterval(() => {
-					self.getData()
-				}, self.config.pollingInterval)
-			}
+			})			
 		}
 	},
 
