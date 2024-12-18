@@ -15,8 +15,8 @@ module.exports = {
 			self.WS = new WebSocket(`ws://${self.config.host}:${self.config.port}/api/ws`)
 
 			self.WS.on('error', (error) => {
-				self.log('error', 'Websocket Error: ' + error.toString())
-				self.updateStatus(InstanceStatus.ConnectionFailure, `Websocket Error: ${String(error)}`)
+				self.log('error', `Websocket Error [${error.code}]: ${error.message}`)
+				self.updateStatus(InstanceStatus.ConnectionFailure, `Websocket Error [${error.code}]: ${error.message}`)
 				self.log('debug', 'Reconnecting in 10 seconds.')
 				setTimeout(() => {
 					self.initConnection()
@@ -33,15 +33,24 @@ module.exports = {
 			})
 
 			self.WS.on('close', () => {
-				self.log('info', 'Websocket Closed.')
-				self.updateStatus(InstanceStatus.ConnectionFailure, 'Websocket Closed.')
+				self.log('info', `Websocket Closed. Code: ${code}, Reason: ${reason || 'No reason provided.'}`)
+				self.updateStatus(InstanceStatus.ConnectionFailure, `Websocket Closed. Code: ${code}`)
+
+				self.WS = null // Ensure WS is set to null when closed
+				delete self.WS
+
 				self.log('debug', 'Reconnecting in 10 seconds.')
 				setTimeout(() => {
 					self.initConnection()
 				}, 10000)
 			})
 
-			self.getData()
+			self.getData() //gets data from REST API
+
+			//clear polling interval if it exists
+			if (self.POLLING_INTERVAL) {
+				clearInterval(self.POLLING_INTERVAL)
+			}
 
 			if (self.config.enablePolling) {
 				self.POLLING_INTERVAL = setInterval(() => {
@@ -101,7 +110,7 @@ module.exports = {
 		//close out the websocket
 		if (self.WS) {
 			self.log('info', 'Closing Websocket Connection.')
-			self.WS.close()
+			self.WS.close(1000, 'Connection closed by Companion.')
 			self.WS = undefined
 			delete self.WS
 		}
@@ -153,10 +162,18 @@ module.exports = {
 			}
 
 			let response = await fetch(url, options)
-			let data = await response.json()
-			
-			self.updateStatus(InstanceStatus.Ok) //clear any previous connection errors
-			
+			let data = undefined
+			if (!response.ok) {
+				self.log('error', `HTTP Error: ${response.status} ${response.statusText}`)
+				self.updateStatus(
+					InstanceStatus.ConnectionFailure,
+					`HTTP Error: ${response.status} ${response.statusText}`,
+				)
+			} else {
+				data = await response.json()
+				self.updateStatus(InstanceStatus.Ok) //clear any previous connection errors
+			}
+
 			return data
 		} catch (error) {
 			self.log('error', `REST Send Error: ${error}`)
