@@ -16,12 +16,17 @@ module.exports = {
 
 			self.WS.on('error', (error) => {
 				self.log('error', `Websocket Error [${error.code}]: ${error.message}`)
-				self.updateStatus(InstanceStatus.ConnectionFailure, `Websocket Error [${error.code}]: ${error.message}`)
-				self.log('debug', 'Reconnecting in 10 seconds.')
+				//self.updateStatus(InstanceStatus.ConnectionFailure, `Websocket Error [${error.code}]: ${error.message}`)
+				/*self.log('debug', 'Reconnecting in 10 seconds.')
+
+				//clear polling interval if it exists
+				if (self.POLLING_INTERVAL) {
+					clearInterval(self.POLLING_INTERVAL)
+				}
 				
 				self.RECONNECT_INTERVAL = setTimeout(() => {
 					self.initConnection()
-				}, 10000)
+				}, 10000)*/
 			})
 
 			self.WS.on('open', () => {
@@ -59,7 +64,7 @@ module.exports = {
 				self.log('info', `Websocket Closed. Code: ${code}, Reason: ${reason || 'No reason provided.'}`)
 				self.updateStatus(InstanceStatus.ConnectionFailure, `Websocket Closed. Code: ${code}`)
 
-				self.WS = null // Ensure WS is set to null when closed
+				self.WS = undefined // Ensure WS is set to null when closed
 				delete self.WS
 
 				//clear polling interval if it exists
@@ -78,7 +83,10 @@ module.exports = {
 	getData: async function () {
 		let self = this
 
-		self.log('info', 'Requesting List of Inputs from REST API.')
+		if (self.config.verbose) {
+			self.log('debug', 'Requesting List of Inputs from REST API.')
+		}
+		
 		let data = await self.sendREST('/api/inputs', 'GET')
 		self.processInputsData(data)
 	},
