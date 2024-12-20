@@ -62,7 +62,7 @@ module.exports = {
 				}
 
 				self.log('info', `Websocket Closed. Code: ${code}, Reason: ${reason || 'No reason provided.'}`)
-				self.updateStatus(InstanceStatus.ConnectionFailure, `Websocket Closed. Code: ${code}`)
+				self.updateStatus(InstanceStatus.ConnectionFailure, `Failed to connect to SCTE 104 Proxy.`)
 
 				self.WS = undefined // Ensure WS is set to null when closed
 				delete self.WS
@@ -76,7 +76,7 @@ module.exports = {
 				self.RECONNECT_INTERVAL = setTimeout(() => {
 					self.initConnection()
 				}, 10000)
-			})			
+			})
 		}
 	},
 
@@ -86,7 +86,7 @@ module.exports = {
 		if (self.config.verbose) {
 			self.log('debug', 'Requesting List of Inputs from REST API.')
 		}
-		
+
 		let data = await self.sendREST('/api/inputs', 'GET')
 		self.processInputsData(data)
 	},
@@ -188,10 +188,7 @@ module.exports = {
 			let data = undefined
 			if (!response.ok) {
 				self.log('error', `HTTP Error: ${response.status} ${response.statusText}`)
-				self.updateStatus(
-					InstanceStatus.ConnectionFailure,
-					`HTTP Error: ${response.status} ${response.statusText}`,
-				)
+				self.updateStatus(InstanceStatus.ConnectionFailure, `Failed to connect to SCTE 104 Proxy.`)
 			} else {
 				data = await response.json()
 				self.updateStatus(InstanceStatus.Ok) //clear any previous connection errors
@@ -200,7 +197,7 @@ module.exports = {
 			return data
 		} catch (error) {
 			self.log('error', `REST Send Error: ${error}`)
-			self.updateStatus(InstanceStatus.ConnectionFailure, `REST Send Error: ${String(error)}`)
+			self.updateStatus(InstanceStatus.ConnectionFailure, `Failed to connect to SCTE 104 Proxy.`)
 		}
 	},
 
