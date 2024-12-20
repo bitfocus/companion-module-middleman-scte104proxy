@@ -1,7 +1,7 @@
 {
 	"id": "middleman-scte104proxy",
 	"name": "middleman-scte104proxy",
-	"shortname": "scte104proxy",
+	"shortname": "SCTE 104 Proxy",
 	"description": "Controls Middleman Software's SCTE 104 Proxy.",
 	"version": "0.0.0",
 	"license": "MIT",
